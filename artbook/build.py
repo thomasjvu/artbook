@@ -20,6 +20,8 @@ def build(catalogue, output, pdf=False):
         items=[]
         for item in chapter['items']:
             if not item.get('include',True):continue
+            if item.get('pixel') and not item.get('grid', {}).get('native_size'):
+                raise ValueError('Pixel plates require grid.native_size: '+item['id'])
             src=image(item);items.append((item,src));plates.append((chapter,item,src))
         chapters.append((chapter,items))
     head=f'<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{esc(data["title"])}</title><link rel="stylesheet" href="theme.css">'
@@ -31,12 +33,12 @@ def build(catalogue, output, pdf=False):
         s.append(f'<section class="chapter" id="chapter-{n}"><span class="folio">Chapter {n:02}</span><h2>{esc(c["title"])}</h2><p>{esc(c.get("intro",""))}</p>')
         if c.get('layout')=='gallery':s.append('<div class="gallery">')
         for item,src in items:
-            number+=1;s.append(f'<figure class="plate {"pixel" if item.get("pixel") else ""}"><img src="{src}" alt="{esc(item["title"])}"><figcaption class="caption"><span class="folio">{number:03}</span><div><h3>{esc(item["title"])}</h3><p>{esc(item.get("caption",""))}</p><p class="folio">{esc(item.get("status","Study"))}</p></div></figcaption></figure>')
+            number+=1;s.append(f'<figure data-grid="{esc(json.dumps(item.get("grid",{})))}" class="plate {"pixel" if item.get("pixel") else ""}"><img src="{src}" alt="{esc(item["title"])}"><figcaption class="caption"><span class="folio">{number:03}</span><div><h3>{esc(item["title"])}</h3><p>{esc(item.get("caption",""))}</p><p class="folio">{esc(item.get("status","Study"))}</p></div></figcaption></figure>')
         if c.get('layout')=='gallery':s.append('</div>')
         s.append('</section>')
     s.append('<script src="pixel-grid.js" defer></script></main><footer>'+esc(data.get('rights',''))+'</footer></html>');(output/'index.html').write_text('\n'.join(s))
     bible=[head,'<header><div class="eyebrow">Working catalogue</div><h1>'+esc(data['title'])+'</h1><nav><a href="index.html">Curated artbook</a></nav><p>Project records and revision notes. Inclusion in the book does not grant final art approval.</p></header><main class="gallery">']
-    for _,item,src in plates:bible.append(f'<article class="working"><h2>{esc(item["title"])}</h2><span class="badge">{esc(item.get("status","Study"))}</span><figure class="plate {"pixel" if item.get("pixel") else ""}"><img src="{src}" alt="{esc(item["title"])}"></figure><p>{esc(item.get("caption",""))}</p><details><summary>Record</summary><pre>{esc(json.dumps(item,indent=2))}</pre></details></article>')
+    for _,item,src in plates:bible.append(f'<article class="working"><h2>{esc(item["title"])}</h2><span class="badge">{esc(item.get("status","Study"))}</span><figure data-grid="{esc(json.dumps(item.get("grid",{})))}" class="plate {"pixel" if item.get("pixel") else ""}"><img src="{src}" alt="{esc(item["title"])}"></figure><p>{esc(item.get("caption",""))}</p><details><summary>Record</summary><pre>{esc(json.dumps(item,indent=2))}</pre></details></article>')
     bible.append('<script src="pixel-grid.js" defer></script></main></html>');(output/'bible.html').write_text('\n'.join(bible))
     shutil.copy2(Path(__file__).with_name('theme.css'),output/'theme.css');shutil.copy2(Path(__file__).with_name('pixel-grid.js'),output/'pixel-grid.js');(output/'catalogue.json').write_text(json.dumps(data,indent=2)+'\n');(output/'provenance.json').write_text(json.dumps(records,indent=2)+'\n')
     if pdf:export_pdf(data,chapters,output)

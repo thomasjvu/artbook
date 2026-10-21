@@ -57,3 +57,12 @@ review resolution and intended reproduction size with your printer.
 MIT license applies to the tooling and neutral demo only. Consumer artwork has
 its own rights. Canonical hosting is Forgejo; GitHub is a Git mirror. Push normal
 branches/tags to both remotes; never force-mirror unrelated refs.
+
+Pixel plates require grid.native_size=[width,height]. Optional grid.cell_size,
+columns, rows and anchor align animation cels and shared origins. Pixel artwork
+is presented on an integer-scaled native grid by default, with cel selection,
+anchor guides and pointer coordinate/RGBA inspection. Local browser policies may
+restrict color reads; coordinates and rendering remain available. Full-resolution
+illustrations and composed captures should be labeled as such, not quantized or
+given an invented pixel-art grid. Keep source-to-export workflow records in the
+project catalogue. Print currently uses the clean plate image, not grid overlays.
