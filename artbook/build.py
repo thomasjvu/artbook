@@ -87,10 +87,6 @@ def export_pdf(data,chapters,output):
                         for col in range(grid.get('columns',1)):
                             cx,cy=x0+col*cw*scale,y0+h-(row+1)*ch*scale
                             c.rect(cx,cy,cw*scale,ch*scale,stroke=1,fill=0)
-                            if grid.get('anchor'):
-                                ax=x0+(col*cw+grid['anchor'][0])*scale
-                                ay=y0+h-(row*ch+grid['anchor'][1])*scale
-                                c.line(ax-3,ay,ax+3,ay);c.line(ax,ay-3,ax,ay+3)
                 c.restoreState()
                 label(f'{iw} x {ih} native pixels / grid: 1 square = 1 pixel',42,160,8)
 
