@@ -74,7 +74,7 @@ def export_pdf(data,chapters,output):
                 if list(grid['native_size']) != [iw,ih]:
                     raise ValueError('Native grid dimensions do not match image: '+item['id'])
                 c.saveState()
-                c.setStrokeColorRGB(.72,.76,.79);c.setLineWidth(.12)
+                c.setStrokeColorRGB(.45,.50,.55);c.setStrokeAlpha(.22);c.setLineWidth(min(.10,scale*.12))
                 path=c.beginPath()
                 for x in range(iw+1):
                     path.moveTo(x0+x*scale,y0);path.lineTo(x0+x*scale,y0+h)
@@ -82,7 +82,7 @@ def export_pdf(data,chapters,output):
                     path.moveTo(x0,y0+y*scale);path.lineTo(x0+w,y0+y*scale)
                 c.drawPath(path)
                 if grid.get('cell_size'):
-                    cw,ch=grid['cell_size'];c.setStrokeColorRGB(.72,.22,.35);c.setLineWidth(.55)
+                    cw,ch=grid['cell_size'];c.setStrokeAlpha(.7);c.setStrokeColorRGB(.72,.22,.35);c.setLineWidth(.55)
                     for row in range(grid.get('rows',1)):
                         for col in range(grid.get('columns',1)):
                             cx,cy=x0+col*cw*scale,y0+h-(row+1)*ch*scale
