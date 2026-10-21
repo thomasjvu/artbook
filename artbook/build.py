@@ -67,7 +67,33 @@ def export_pdf(data,chapters,output):
         for item,src in items:
             label(chapter['title'].upper()[:70],42,height-45,8)
             reader=ImageReader(str(output/src));iw,ih=reader.getSize();scale=min((width-84)/iw,(height-245)/ih);w,h=iw*scale,ih*scale
-            c.drawImage(reader,(width-w)/2,180+(height-245-h)/2,w,h,mask='auto')
+            x0,y0=(width-w)/2,180+(height-245-h)/2
+            c.drawImage(reader,x0,y0,w,h,mask='auto')
+            if item.get('pixel'):
+                grid=item['grid']
+                if list(grid['native_size']) != [iw,ih]:
+                    raise ValueError('Native grid dimensions do not match image: '+item['id'])
+                c.saveState()
+                c.setStrokeColorRGB(.72,.76,.79);c.setLineWidth(.12)
+                path=c.beginPath()
+                for x in range(iw+1):
+                    path.moveTo(x0+x*scale,y0);path.lineTo(x0+x*scale,y0+h)
+                for y in range(ih+1):
+                    path.moveTo(x0,y0+y*scale);path.lineTo(x0+w,y0+y*scale)
+                c.drawPath(path)
+                if grid.get('cell_size'):
+                    cw,ch=grid['cell_size'];c.setStrokeColorRGB(.72,.22,.35);c.setLineWidth(.55)
+                    for row in range(grid.get('rows',1)):
+                        for col in range(grid.get('columns',1)):
+                            cx,cy=x0+col*cw*scale,y0+h-(row+1)*ch*scale
+                            c.rect(cx,cy,cw*scale,ch*scale,stroke=1,fill=0)
+                            if grid.get('anchor'):
+                                ax=x0+(col*cw+grid['anchor'][0])*scale
+                                ay=y0+h-(row*ch+grid['anchor'][1])*scale
+                                c.line(ax-3,ay,ax+3,ay);c.line(ax,ay-3,ax,ay+3)
+                c.restoreState()
+                label(f'{iw} x {ih} native pixels / grid: 1 square = 1 pixel',42,160,8)
+
             label(item['title'][:65],42,140,14)
             for j,line in enumerate(textwrap.wrap(item.get('caption',''),83)[:4]):label(line,42,118-j*12,8)
             label(item.get('status','Study').upper()[:80],42,57,7);footer();c.showPage()
